@@ -12,13 +12,6 @@ public class SkinOptions {
     private final Variant variant;
     private final Visibility visibility;
 
-    @Deprecated
-    private SkinOptions(String name, Model model, Visibility visibility) {
-        this.name = name;
-        this.variant = model.toVariant();
-        this.visibility = visibility;
-    }
-
     private SkinOptions(String name, Variant variant, Visibility visibility) {
         this.name = name;
         this.variant = variant;
@@ -60,10 +53,6 @@ public class SkinOptions {
         return name;
     }
 
-    @Deprecated
-    public static SkinOptions create(String name, Model model, Visibility visibility) {
-        return new SkinOptions(name, model, visibility);
-    }
 
     public static SkinOptions create(String name, Variant variant, Visibility visibility) {
         return new SkinOptions(name, variant, visibility);

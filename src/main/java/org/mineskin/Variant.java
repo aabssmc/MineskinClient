@@ -1,7 +1,8 @@
 package org.mineskin;
 
 public enum Variant {
-    AUTO(""),
+
+    AUTO("auto"),
     CLASSIC("classic"),
     SLIM("slim");
 

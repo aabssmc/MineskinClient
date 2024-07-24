@@ -1,8 +1,8 @@
 package org.mineskin.data;
 
 public class MineskinException extends RuntimeException {
-    public MineskinException() {
-    }
+
+    public MineskinException() {}
 
     public MineskinException(String message) {
         super(message);

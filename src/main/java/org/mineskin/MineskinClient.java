@@ -8,7 +8,6 @@ import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.mineskin.data.MineskinException;
 import org.mineskin.data.Skin;
-import org.mineskin.data.SkinCallback;
 
 import javax.imageio.ImageIO;
 import java.awt.image.RenderedImage;
@@ -26,33 +25,13 @@ public class MineskinClient {
     private static final String GENERATE_BASE = API_BASE + "/generate";
     private static final String GET_BASE = API_BASE + "/get";
 
-    private static final String ID_FORMAT = "https://api.mineskin.org/get/id/%s";
-    private static final String URL_FORMAT = "https://api.mineskin.org/generate/url?url=%s&%s";
-    private static final String UPLOAD_FORMAT = "https://api.mineskin.org/generate/upload?%s";
-    private static final String USER_FORMAT = "https://api.mineskin.org/generate/user/%s?%s";
-
     private final Executor requestExecutor;
     private final String userAgent;
     private final String apiKey;
 
-    private final JsonParser jsonParser = new JsonParser();
     private final Gson gson = new Gson();
 
     private long nextRequest = 0;
-
-    @Deprecated
-    public MineskinClient() {
-        this.requestExecutor = Executors.newSingleThreadExecutor();
-        this.userAgent = "MineSkin-JavaClient";
-        this.apiKey = null;
-    }
-
-    @Deprecated
-    public MineskinClient(Executor requestExecutor) {
-        this.requestExecutor = checkNotNull(requestExecutor);
-        this.userAgent = "MineSkin-JavaClient";
-        this.apiKey = null;
-    }
 
     public MineskinClient(String userAgent) {
         this.requestExecutor = Executors.newSingleThreadExecutor();
@@ -257,233 +236,6 @@ public class MineskinClient {
         Skin skin = gson.fromJson(jsonObject, Skin.class);
         this.nextRequest = System.currentTimeMillis() + ((long) (skin.delayInfo.millis + (this.apiKey == null ? 10_000 : 100)));
         return skin;
-    }
-
-    ///// SkinCallback stuff below
-
-
-    /*
-     * ID
-     */
-
-    /**
-     * Gets data for an existing Skin
-     *
-     * @param id       Skin-Id
-     * @param callback {@link SkinCallback}
-     */
-    @Deprecated
-    public void getSkin(int id, SkinCallback callback) {
-        checkNotNull(callback);
-        requestExecutor.execute(() -> {
-            try {
-                Connection connection = Jsoup
-                        .connect(String.format(ID_FORMAT, id))
-                        .userAgent(userAgent)
-                        .method(Connection.Method.GET)
-                        .ignoreContentType(true)
-                        .ignoreHttpErrors(true)
-                        .timeout(10000);
-                String body = connection.execute().body();
-                handleResponse(body, callback);
-            } catch (Exception e) {
-                callback.exception(e);
-            } catch (Throwable throwable) {
-                throw new RuntimeException(throwable);
-            }
-        });
-    }
-
-    /*
-     * URL
-     */
-
-    /**
-     * Generates skin data from an URL (with default options)
-     *
-     * @param url      URL
-     * @param callback {@link SkinCallback}
-     * @see #generateUrl(String, SkinOptions, SkinCallback)
-     */
-    @Deprecated
-    public void generateUrl(String url, SkinCallback callback) {
-        generateUrl(url, SkinOptions.none(), callback);
-    }
-
-    /**
-     * Generates skin data from an URL
-     *
-     * @param url      URL
-     * @param options  {@link SkinOptions}
-     * @param callback {@link SkinCallback}
-     */
-    @Deprecated
-    public void generateUrl(String url, SkinOptions options, SkinCallback callback) {
-        checkNotNull(url);
-        checkNotNull(options);
-        checkNotNull(callback);
-        requestExecutor.execute(() -> {
-            try {
-                if (System.currentTimeMillis() < nextRequest) {
-                    long delay = (nextRequest - System.currentTimeMillis());
-                    callback.waiting(delay);
-                    Thread.sleep(delay + 10);
-                }
-
-                callback.uploading();
-
-                Connection connection = Jsoup
-                        .connect(String.format(URL_FORMAT, url, options.toUrlParam()))
-                        .userAgent(userAgent)
-                        .method(Connection.Method.POST)
-                        .ignoreContentType(true)
-                        .ignoreHttpErrors(true)
-                        .timeout(40000);
-                if (apiKey != null) {
-                    connection.header("Authorization", "Bearer " + apiKey);
-                }
-                String body = connection.execute().body();
-                handleResponse(body, callback);
-            } catch (Exception e) {
-                callback.exception(e);
-            } catch (Throwable throwable) {
-                throw new RuntimeException(throwable);
-            }
-        });
-    }
-
-    /*
-     * Upload
-     */
-
-    /**
-     * Uploads and generates skin data from a local file (with default options)
-     *
-     * @param file     File to upload
-     * @param callback {@link SkinCallback}
-     */
-    @Deprecated
-    public void generateUpload(File file, SkinCallback callback) {
-        generateUpload(file, SkinOptions.none(), callback);
-    }
-
-    /**
-     * Uploads and generates skin data from a local file
-     *
-     * @param file     File to upload
-     * @param options  {@link SkinOptions}
-     * @param callback {@link SkinCallback}
-     */
-    @Deprecated
-    public void generateUpload(File file, SkinOptions options, SkinCallback callback) {
-        checkNotNull(file);
-        checkNotNull(options);
-        checkNotNull(callback);
-        requestExecutor.execute(() -> {
-            try {
-                if (System.currentTimeMillis() < nextRequest) {
-                    long delay = (nextRequest - System.currentTimeMillis());
-                    callback.waiting(delay);
-                    Thread.sleep(delay + 10);
-                }
-
-                callback.uploading();
-
-                Connection connection = Jsoup
-                        .connect(String.format(UPLOAD_FORMAT, options.toUrlParam()))
-                        .userAgent(userAgent)
-                        .method(Connection.Method.POST)
-                        .data("file", file.getName(), new FileInputStream(file))
-                        .ignoreContentType(true)
-                        .ignoreHttpErrors(true)
-                        .timeout(40000);
-                if (apiKey != null) {
-                    connection.header("Authorization", "Bearer " + apiKey);
-                }
-                String body = connection.execute().body();
-                handleResponse(body, callback);
-            } catch (Exception e) {
-                callback.exception(e);
-            } catch (Throwable throwable) {
-                throw new RuntimeException(throwable);
-            }
-        });
-    }
-
-    /*
-     * User
-     */
-
-    /**
-     * Loads skin data from an existing player (with default options)
-     *
-     * @param uuid     {@link UUID} of the player
-     * @param callback {@link SkinCallback}
-     */
-    @Deprecated
-    public void generateUser(UUID uuid, SkinCallback callback) {
-        generateUser(uuid, SkinOptions.none(), callback);
-    }
-
-    /**
-     * Loads skin data from an existing player
-     *
-     * @param uuid     {@link UUID} of the player
-     * @param options  {@link SkinOptions}
-     * @param callback {@link SkinCallback}
-     */
-    @Deprecated
-    public void generateUser(UUID uuid, SkinOptions options, SkinCallback callback) {
-        checkNotNull(uuid);
-        checkNotNull(options);
-        checkNotNull(callback);
-        requestExecutor.execute(() -> {
-            try {
-                if (System.currentTimeMillis() < nextRequest) {
-                    long delay = (nextRequest - System.currentTimeMillis());
-                    callback.waiting(delay);
-                    Thread.sleep(delay + 10);
-                }
-
-                callback.uploading();
-
-                Connection connection = Jsoup
-                        .connect(String.format(USER_FORMAT, uuid.toString(), options.toUrlParam()))
-                        .userAgent(userAgent)
-                        .method(Connection.Method.GET)
-                        .ignoreContentType(true)
-                        .ignoreHttpErrors(true)
-                        .timeout(40000);
-                if (apiKey != null) {
-                    connection.header("Authorization", "Bearer " + apiKey);
-                }
-                String body = connection.execute().body();
-                handleResponse(body, callback);
-            } catch (Exception e) {
-                callback.exception(e);
-            } catch (Throwable throwable) {
-                throw new RuntimeException(throwable);
-            }
-        });
-    }
-
-    @Deprecated
-    void handleResponse(String body, SkinCallback callback) {
-        try {
-            JsonObject jsonObject = jsonParser.parse(body).getAsJsonObject();
-            if (jsonObject.has("error")) {
-                callback.error(jsonObject.get("error").getAsString());
-                return;
-            }
-
-            Skin skin = gson.fromJson(jsonObject, Skin.class);
-            this.nextRequest = System.currentTimeMillis() + ((long) (skin.delayInfo.millis + (this.apiKey == null ? 10_000 : 0)));
-            callback.done(skin);
-        } catch (JsonParseException e) {
-            callback.parseException(e, body);
-        } catch (Throwable throwable) {
-            throw new RuntimeException(throwable);
-        }
     }
 
 }
