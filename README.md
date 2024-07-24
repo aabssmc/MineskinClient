@@ -16,19 +16,11 @@ client.generateUrl("https://image.url", SkinOptions.name("some cool skin")).then
 })
 ```  
 
-
-```xml
-<dependency>
-    <groupId>org.mineskin</groupId>
-    <artifactId>java-client</artifactId>
-    <version>1.2.3-SNAPSHOT</version>
-</dependency>
+```gradle
+repositories {
+    maven { url = "https://jitpack.io" }
+}
 ```
-```xml
-<repositories>
-    <repository>
-        <id>inventive-repo</id>
-        <url>https://repo.inventivetalent.org/repository/public/</url>
-    </repository>
-</repositories>
+```gradle
+implementation 'com.github.aabssmc:MineskinClient:1.0'
 ```
