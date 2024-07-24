@@ -4,6 +4,7 @@ import com.google.common.base.Strings;
 import com.google.gson.JsonObject;
 import org.jsoup.Connection;
 
+@SuppressWarnings("unused")
 public class SkinOptions {
 
     private static final String URL_FORMAT = "name=%s&model=%s&visibility=%s";

@@ -1,5 +1,6 @@
 package org.mineskin.data;
 
+@SuppressWarnings("unused")
 public class MineskinException extends RuntimeException {
 
     public MineskinException() {}

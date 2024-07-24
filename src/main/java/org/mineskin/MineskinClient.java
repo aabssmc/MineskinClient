@@ -3,7 +3,6 @@ package org.mineskin;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import com.google.gson.JsonParser;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.mineskin.data.MineskinException;
@@ -19,6 +18,7 @@ import java.util.concurrent.Executors;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+@SuppressWarnings("unused")
 public class MineskinClient {
 
     private static final String API_BASE = "https://api.mineskin.org";

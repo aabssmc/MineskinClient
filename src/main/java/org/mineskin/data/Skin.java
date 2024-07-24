@@ -2,6 +2,7 @@ package org.mineskin.data;
 
 import com.google.gson.annotations.SerializedName;
 
+@SuppressWarnings("unused")
 public class Skin {
     public int id;
     public String uuid;
