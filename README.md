@@ -13,7 +13,6 @@ please [add your account here](https://mineskin.org/account)!
 public class Example {
 
     private static final MineSkinClient CLIENT = MineSkinClient.builder()
-            .requestHandler(JsoupRequestHandler::new)
             .userAgent("MyMineSkinApp/v1.0")
             .apiKey("your-api-key")
             .build();
@@ -56,30 +55,19 @@ public class Example {
 
 
 ```xml
-<depencies>
+<dependencies>
     <dependency>
-        <groupId>org.mineskin</groupId>
-        <artifactId>java-client</artifactId>
-        <version>2.0.0-SNAPSHOT</version>
+        <groupId>cc.aabss</groupId>
+        <artifactId>mineskinclient</artifactId>
+        <version>2.0.1-SNAPSHOT</version>
     </dependency>
-    <dependency>
-        <groupId>org.mineskin</groupId>
-        <artifactId>java-client-jsoup</artifactId>
-        <version>2.0.0-SNAPSHOT</version>
-    </dependency>
-<!-- alternatively use apache httpcommons -->
-<!--    <dependency>-->
-<!--        <groupId>org.mineskin</groupId>-->
-<!--        <artifactId>java-client-apache</artifactId>-->
-<!--        <version>2.0.0-SNAPSHOT</version>-->
-<!--    </dependency>-->
-</depencies>
+</dependencies>
 ```
 ```xml
 <repositories>
     <repository>
-        <id>inventive-repo</id>
-        <url>https://repo.inventivetalent.org/repository/public/</url>
+        <id>jitpack</id>
+        <url>https://jitpack.io/</url>
     </repository>
 </repositories>
 ```
